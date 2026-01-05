@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Notes</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont}
+body,html{width:100%;height:100%;overflow:hidden;background:black}
+
+/* WALLPAPER */
+.wallpaper{
+  position:fixed;
+  inset:0;
+  background:url("https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80") center/cover no-repeat;
+  filter:blur(18px);
+  transform:scale(1.1);
+}
+
+/* STATUS BAR */
+.status{
+  position:absolute;
+  top:10px;
+  width:100%;
+  text-align:center;
+  color:white;
+  font-size:14px;
+  opacity:.9;
+}
+
+/* LOCK SCREEN */
+.lock{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  color:white;
+}
+.time{
+  font-size:64px;
+  margin-bottom:10px;
+}
+.passText{margin:10px 0;font-size:18px;opacity:.9}
+.dots{display:flex;gap:12px;margin-bottom:20px}
+.dot{
+  width:14px;height:14px;
+  border:2px solid white;
+  border-radius:50%;
+}
+.dot.fill{background:white}
+.keypad{
+  display:grid;
+  grid-template-columns:repeat(3,80px);
+  gap:15px;
+}
+.key{
+  width:80px;height:80px;
+  border-radius:50%;
+  background:rgba(255,255,255,.15);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+}
+
+/* HOME SCREEN */
+.home{
+  position:absolute;
+  inset:0;
+  display:none;
+}
+.icon{
+  width:80px;
+  margin:120px 30px;
+  text-align:center;
+  color:white;
+}
+.icon img{width:80px;border-radius:18px}
+
+/* NOTES */
+.notes{
+  position:absolute;
+  inset:0;
+  background:#fffbea;
+  display:none;
+  padding:60px 20px;
+  font-size:32px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wallpaper"></div>
+
+<div class="status" id="status"></div>
+
+<!-- LOCK -->
+<div class="lock" id="lock">
+  <div class="time" id="time"></div>
+  <div class="passText">Enter Passcode</div>
+  <div class="dots" id="dots">
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+  <div class="keypad">
+    <div class="key">1</div><div class="key">2</div><div class="key">3</div>
+    <div class="key">4</div><div class="key">5</div><div class="key">6</div>
+    <div class="key">7</div><div class="key">8</div><div class="key">9</div>
+    <div></div><div class="key">0</div><div></div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="home" id="home">
+  <div class="icon" id="notesIcon">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/4/45/Apple_Notes_icon.svg">
+    <div>Notes</div>
+  </div>
+</div>
+
+<!-- NOTES -->
+<div class="notes" id="notes"></div>
+
+<script>
+let code="";
+let result="";
+
+const map={
+ "12":"Monday",
+ "23":"Tuesday",
+ "34":"Wednesday",
+ "45":"Thursday",
+ "56":"Friday",
+ "67":"Saturday",
+ "78":"Sunday"
+};
+
+function updateTime(){
+  const d=new Date();
+  let h=d.getHours()%12||12;
+  let m=d.getMinutes().toString().padStart(2,"0");
+  document.getElementById("time").innerText=h+":"+m;
+  document.getElementById("status").innerText=h+":"+m;
+}
+setInterval(updateTime,1000);updateTime();
+
+document.querySelectorAll(".key").forEach(k=>{
+  k.onclick=()=>{
+    if(code.length>=4)return;
+    code+=k.innerText;
+    document.querySelectorAll(".dot")[code.length-1].classList.add("fill");
+
+    if(code.length===4){
+      if(code.endsWith("80")){
+        result=map[code.substring(0,2)]||"";
+        setTimeout(unlock,300);
+      }else reset();
+    }
+  };
+});
+
+function unlock(){
+  document.getElementById("lock").style.display="none";
+  document.getElementById("home").style.display="block";
+}
+
+function reset(){
+  code="";
+  document.querySelectorAll(".dot").forEach(d=>d.classList.remove("fill"));
+}
+
+document.getElementById("notesIcon").onclick=()=>{
+  document.getElementById("home").style.display="none";
+  document.getElementById("notes").style.display="block";
+  document.getElementById("notes").innerText=result;
+};
+</script>
+
+</body>
+</html>
